@@ -2,7 +2,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-Rcpp::NumericVector  make_spd(Rcpp::List input_val, 
+Rcpp::List  make_spd(Rcpp::List input_val, 
                              int start_date,
                              int end_date){
   
@@ -11,7 +11,7 @@ Rcpp::NumericVector  make_spd(Rcpp::List input_val,
   }
   // Create vector to store sum of probability
   Rcpp::NumericVector prsum (end_date - start_date);
-  
+  Rcpp::IntegerVector ages = Rcpp::seq(start_date, end_date);
   
   // Get size of lists (no of dates)
   unsigned int n = input_val.length();
@@ -31,7 +31,9 @@ Rcpp::NumericVector  make_spd(Rcpp::List input_val,
     }
     
   }
-  
-  return prsum;
+  prsum = prsum / sum(prsum);
+  Rcpp::List out = Rcpp::List::create(Rcpp::Named("calbp") = ages,
+                                      Rcpp::Named("d") = prsum);
+  return out;
 }
 
