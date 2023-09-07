@@ -10,7 +10,7 @@ Rcpp::List  make_spd(Rcpp::List input_val,
     Rcpp::stop("end_date should be larger than start_date");
   }
   // Create vector to store sum of probability
-  Rcpp::NumericVector prsum (end_date - start_date);
+  Rcpp::NumericVector prsum ((end_date + 1) - start_date);
   Rcpp::IntegerVector ages = Rcpp::seq(start_date, end_date);
   
   // Get size of lists (no of dates)
