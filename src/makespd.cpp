@@ -37,3 +37,21 @@ Rcpp::List  make_spd(Rcpp::List input_val,
   return out;
 }
 
+Rcpp::List test_spd(Rcpp::List input_val, 
+                     int start_date,
+                     int end_date){
+  
+  if(end_date <= start_date) { 
+    Rcpp::stop("end_date should be larger than start_date");
+  }
+  // Create vector to store sum of probability
+  Rcpp::NumericVector prsum ((end_date + 1) - start_date);
+  Rcpp::IntegerVector ages = Rcpp::seq(start_date, end_date);
+  
+  Rcpp::DataFrame df(input_val[0]);
+  Rcpp::IntegerVector calbp = df["calBP"];
+  Rcpp::NumericVector prdens = df["PrDens"];
+  Rcpp::List out = Rcpp::List::create(Rcpp::Named("calbp") = calbp,
+                                      Rcpp::Named("d") = prdens);
+  return out;
+}
