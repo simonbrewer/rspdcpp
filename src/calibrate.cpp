@@ -55,7 +55,7 @@ Rcpp::NumericVector cpplinterp(Rcpp::NumericVector x,
                                const int maxgap=99999, const bool locf=false){
   Rcpp::NumericVector yout=clone(xout);
   for(int i=0;i<yout.size();i++){
-    yout[i]=cpplinterp_(x,y,xout[i],maxgap,false);
+    yout[i] = cpplinterp_(x,y,xout[i],maxgap,false);
   }
   if(locf){
     for(int i=0;i<yout.size();i++){
@@ -72,13 +72,28 @@ Rcpp::NumericVector cpplinterp(Rcpp::NumericVector x,
     for(int i=yout.size()-1;i>=0;i--){
       if(Rcpp::NumericVector::is_na(yout[i])){
         int idx=1;
-        while (i-idx>0 && NumericVector::is_na(yout[i-idx]) && x[i]-x[i-idx] < maxgap){
+        while (i-idx>0 && Rcpp::NumericVector::is_na(yout[i-idx]) && x[i]-x[i-idx] < maxgap){
           idx++ ; 
         }
         yout[i]=yout[i-idx];       
       }
     } 
   }
+  return yout;
+}
+
+// [[Rcpp::export]]
+double approx_test(Rcpp::DataFrame calcurve, 
+                        int start_date,
+                        int end_date){
+  
+  Rcpp::NumericVector calbp = calcurve["CALBP"];
+  Rcpp::NumericVector c14bp = calcurve["C14BP"];
+  Rcpp::NumericVector tau1 = calcurve["Error"];
+  
+  // Interpolation grid
+  double xout = 100.0;
+  double yout = cpplinterp_(calbp, c14bp, xout, 99999, false);
   return yout;
 }
 
@@ -91,9 +106,13 @@ NumericVector calibrate(Rcpp::DataFrame calcurve,
   Rcpp::NumericVector tau1 = calcurve["Error"];
   
   // Interpolation grid
-  Rcpp::IntegerVector calbprange = Rcpp::seq(start_date, end_date);
-  
-  //Rcpp::NumericVector = cpplinterp();
-  return NA_REAL;
+  IntegerVector tmprange = Rcpp::seq(start_date, end_date);
+  NumericVector agerange = as<NumericVector>(tmprange);
+  NumericVector mu = cpplinterp(calbp, c14bp, agerange, 99999, false);
+  // Rcpp::NumericVector mu = Rcpp::clone(agerange);
+  // for(int i=0;i<agerange.size();i++){
+  //   mu[i]=cpplinterp_(calbp,c14bp,agerange[i]);
+  // }
+  return mu;
 }
 
