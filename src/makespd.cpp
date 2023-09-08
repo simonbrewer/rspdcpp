@@ -2,7 +2,9 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-double cpplinterp_( NumericVector x, NumericVector y, double xout, const int maxgap=99999, const bool locf=false){
+double cpplinterp_(Rcpp::NumericVector x,
+                   Rcpp::NumericVector y, 
+                   double xout, const int maxgap=99999, const bool locf=false){
   // Linear approximation of a vector-function
   // x, y	vectors giving the coordinates of the points to be interpolated. 
   // x is assumed to be strictly monotonic.
@@ -32,10 +34,10 @@ double cpplinterp_( NumericVector x, NumericVector y, double xout, const int max
   // Find the nonNA location of y around xout within maxgap
   int leftjust=1;
   int rightjust=0;
-  while (NumericVector::is_na(y[idx-leftjust]) && idx-leftjust > 0 ){
+  while (Rcpp::NumericVector::is_na(y[idx-leftjust]) && idx-leftjust > 0 ){
     leftjust++; 
   }
-  while (NumericVector::is_na(y[idx+rightjust]) && idx+rightjust < n_x ){
+  while (Rcpp::NumericVector::is_na(y[idx+rightjust]) && idx+rightjust < n_x ){
     rightjust++ ; 
   }
   if(x[idx+rightjust] - x[idx-leftjust] -1<=maxgap){
@@ -47,23 +49,28 @@ double cpplinterp_( NumericVector x, NumericVector y, double xout, const int max
 }
 
 // [[Rcpp::export]]
-NumericVector cpplinterp( NumericVector x, NumericVector y, NumericVector xout, const int maxgap=99999, const bool locf=false){
-  NumericVector yout=clone(xout);
+Rcpp::NumericVector cpplinterp(Rcpp::NumericVector x, 
+                         Rcpp::NumericVector y, 
+                         Rcpp::NumericVector xout, 
+                         const int maxgap=99999, const bool locf=false){
+  Rcpp::NumericVector yout=clone(xout);
   for(int i=0;i<yout.size();i++){
     yout[i]=cpplinterp_(x,y,xout[i],maxgap,false);
   }
   if(locf){
     for(int i=0;i<yout.size();i++){
-      if(NumericVector::is_na(yout[i])){
+      if(Rcpp::NumericVector::is_na(yout[i])){
         int idx=1;
-        while (i+idx< yout.size()-1 && NumericVector::is_na(yout[i+idx]) && x[i+idx]-x[i] < maxgap){
+        while (i+idx< yout.size()-1 && 
+               Rcpp::NumericVector::is_na(yout[i+idx]) && 
+               x[i+idx]-x[i] < maxgap){
           idx++ ; 
         }
         yout[i]=yout[i+idx];       
       }
     }     
     for(int i=yout.size()-1;i>=0;i--){
-      if(NumericVector::is_na(yout[i])){
+      if(Rcpp::NumericVector::is_na(yout[i])){
         int idx=1;
         while (i-idx>0 && NumericVector::is_na(yout[i-idx]) && x[i]-x[i-idx] < maxgap){
           idx++ ; 
@@ -73,6 +80,11 @@ NumericVector cpplinterp( NumericVector x, NumericVector y, NumericVector xout, 
     } 
   }
   return yout;
+}
+
+// [[Rcpp::export]]
+NumericVector calibrate(){
+  return NA_REAL;
 }
 
 // [[Rcpp::export]]
