@@ -25,7 +25,7 @@ Rcpp::List  make_spd(Rcpp::List input_val,
     //Rcpp::DataFrame dates = input_val[i];
     elems = calbp.length();
     for(unsigned int j = 0; j < elems; j++) {
-      if (calbp(j) > start_date && calbp(j) < end_date) {
+      if (calbp(j) >= start_date && calbp(j) <= end_date) {
         prsum(calbp(j)) += prdens(j);
       }
     }
@@ -37,6 +37,7 @@ Rcpp::List  make_spd(Rcpp::List input_val,
   return out;
 }
 
+// [[Rcpp::export]]
 Rcpp::List test_spd(Rcpp::List input_val, 
                      int start_date,
                      int end_date){
@@ -51,6 +52,7 @@ Rcpp::List test_spd(Rcpp::List input_val,
   Rcpp::DataFrame df(input_val[0]);
   Rcpp::IntegerVector calbp = df["calBP"];
   Rcpp::NumericVector prdens = df["PrDens"];
+  prdens = prdens * 1.0;
   Rcpp::List out = Rcpp::List::create(Rcpp::Named("calbp") = calbp,
                                       Rcpp::Named("d") = prdens);
   return out;
