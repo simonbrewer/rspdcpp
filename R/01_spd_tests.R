@@ -18,11 +18,16 @@ plot(spd.uncalsample.norm$grid$calBP, spd.uncalsample.norm$grid$PrDens,
      type = 'p', xlab = "Age BP", ylab = "D")
 lines(spd_test$calbp, spd_test$d, col = 2)
 
-## RCARBON comparison below here
-library(rcarbon)
+df = data.frame(ages = rev(spd.uncalsample.norm$grid$calBP), 
+                rcarbon = rev(spd.uncalsample.norm$grid$PrDens), rcpp = 
+                  spd_test$d)
+head(df, 10)
 
-system.time(spd_rcarbon <- spd(uncalsample.norm, timeRange = c(4000,0), spdnormalised = TRUE, verbose = FALSE))
+## RCARBON speed comparison below here
+# library(rcarbon)
 
-system.time(spd_rcpp <- make_spd(uncalsample.norm$grids, 0, 4000))
+# system.time(spd_rcarbon <- spd(uncalsample.norm, timeRange = c(4000,0), spdnormalised = TRUE, verbose = FALSE))
+
+# system.time(spd_rcpp <- make_spd(uncalsample.norm$grids, 0, 4000))
 
 
