@@ -1,4 +1,5 @@
 library(Rcpp)
+
 sourceCpp("./src/makespd.cpp")
 
 load("./data/uncalDates.RData")
@@ -13,9 +14,15 @@ make_spd(test_dates$grid, 0, 4000)
 ## Results comparison
 spd_test <- make_spd(uncalsample.norm$grids, 0, 4000)
 
-plot(spd.uncalsample.norm$grid$calBP, spd.uncalsample.norm$grid$PrDens, type = 'l')
+plot(spd.uncalsample.norm$grid$calBP, spd.uncalsample.norm$grid$PrDens, 
+     type = 'p', xlab = "Age BP", ylab = "D")
 lines(spd_test$calbp, spd_test$d, col = 2)
 
 ## RCARBON comparison below here
 library(rcarbon)
+
+system.time(spd_rcarbon <- spd(uncalsample.norm, timeRange = c(4000,0), spdnormalised = TRUE, verbose = FALSE))
+
+system.time(spd_rcpp <- make_spd(uncalsample.norm$grids, 0, 4000))
+
 
