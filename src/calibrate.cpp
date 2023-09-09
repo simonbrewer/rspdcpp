@@ -21,7 +21,8 @@ Rcpp::NumericVector cal_dnorm( double x,
 // [[Rcpp::export]]
 double cpplinterp_(Rcpp::NumericVector x,
                    Rcpp::NumericVector y, 
-                   double xout, const int maxgap=99999, const bool locf=false){
+                   double xout, const int maxgap=99999, 
+                   const bool locf=false){
   // Linear approximation of a vector-function
   // x, y	vectors giving the coordinates of the points to be interpolated. 
   // x is assumed to be strictly monotonic.
@@ -115,11 +116,12 @@ double approx_test(Rcpp::DataFrame calcurve,
 }
 
 // [[Rcpp::export]]
-NumericVector calibrate(Rcpp::NumericVector ages, 
-                        Rcpp::NumericVector error, 
-                        Rcpp::DataFrame calcurve, 
-                        int start_date,
-                        int end_date){
+List calibrate(Rcpp::NumericVector ages, 
+               Rcpp::NumericVector error, 
+               Rcpp::DataFrame calcurve, 
+               int start_date,
+               int end_date,
+               const bool normalize=false){
   
   // Checks
   if(end_date <= start_date) { 
@@ -133,6 +135,9 @@ NumericVector calibrate(Rcpp::NumericVector ages,
   double eps = 1e-5;
   // Number of dates passed
   int n = ages.length();
+  // Output list
+  Rcpp::List output (n);
+  
   
   // Step 1: get yearly conversion series
   Rcpp::NumericVector calbp = calcurve["CALBP"];
@@ -157,7 +162,15 @@ NumericVector calibrate(Rcpp::NumericVector ages,
     tau = pow(error[i], 2.0) + tau2;
     tau = pow(tau, 0.5);
     dens = cal_dnorm(ages[i], mu, tau, eps);
+    if (normalize == true) {
+      dens = dens / sum(dens);
+    }
+    
+    Rcpp::DataFrame tmp =
+      Rcpp::DataFrame::create(Rcpp::Named("calbp") = agegrid[dens > eps],
+                              Rcpp::Named("prdens") = dens[dens > eps]);
+    output[i] = tmp;
   }
-  return dens;
+  return output;
 }
 
