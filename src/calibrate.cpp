@@ -1,6 +1,9 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// Uses interpolation functions taken from
+// https://github.com/RfastOfficial/Rfast/issues/12
+
 // [[Rcpp::export]]
 Rcpp::NumericVector cal_dnorm( double x, 
                                Rcpp::NumericVector means, 
@@ -118,30 +121,43 @@ NumericVector calibrate(Rcpp::NumericVector ages,
                         int start_date,
                         int end_date){
   
+  // Checks
+  if(end_date <= start_date) { 
+    Rcpp::stop("end_date should be larger than start_date");
+  }
+  if(ages.length() != error.length()) { 
+    Rcpp::stop("Number of dates does not equal number of errors");
+  }
+  
+  // This is the threshold for inclusion  
+  double eps = 1e-5;
+  // Number of dates passed
+  int n = ages.length();
+  
   // Step 1: get yearly conversion series
   Rcpp::NumericVector calbp = calcurve["CALBP"];
   Rcpp::NumericVector c14bp = calcurve["C14BP"];
   Rcpp::NumericVector tau1 = calcurve["Error"];
   
-  // Interpolation grid
+  // Step 2: Make interpolation grid
   IntegerVector tmprange = Rcpp::seq(start_date, end_date);
   NumericVector agegrid = as<NumericVector>(tmprange);
-  //int ngrid = agegrid.length();
   
+  // Step 3: Interpolate Cal and C14 references
   NumericVector mu = cpplinterp(calbp, c14bp, agegrid, 99999, false);
   NumericVector tau2 = cpplinterp(calbp, tau1, agegrid, 99999, false);
   tau2 = pow(tau2, 2);
   
-  // Convert dates
-  NumericVector tau = pow(error[0], 2.0) + tau2;
-  tau = pow(tau, 0.5);
-  //double dens = dnorm(x1, mean = x2, sd = x3);
-  double eps = 1e-5;
-  //NumericVector dens = cal_dnorm(agegrid, mu, tau, eps);
-  NumericVector dens = cal_dnorm(ages[0], mu, tau, eps);
-  // loop over dates
-  // for(unsigned int j = 0; j < ngrid; j++) {
-  // }
+  // Output stores
+  NumericVector dens (mu.length());
+  NumericVector tau (mu.length());
+  
+  // Step 4: Convert dates
+  for(unsigned int i = 0; i < n; i++) {
+    tau = pow(error[i], 2.0) + tau2;
+    tau = pow(tau, 0.5);
+    dens = cal_dnorm(ages[i], mu, tau, eps);
+  }
   return dens;
 }
 
