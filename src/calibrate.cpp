@@ -2,12 +2,16 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-Rcpp::NumericVector mydnorm( Rcpp::NumericVector x, 
-                             Rcpp::NumericVector means, 
-                             Rcpp::NumericVector sds){
-  int n = x.size() ;
+Rcpp::NumericVector cal_dnorm( double x, 
+                               Rcpp::NumericVector means, 
+                               Rcpp::NumericVector sds,
+                               double eps){
+  int n = means.size() ;
   Rcpp::NumericVector res(n) ;
-  for( int i=0; i<n; i++) res[i] = R::dnorm( x[i], means[i], sds[i], false ) ;
+  for( int i=0; i<n; i++){
+    res[i] = R::dnorm( x, means[i], sds[i], false );
+    if (res[i] < eps) res[i] = 0;
+  } 
   return res ;
 }
 
@@ -122,19 +126,19 @@ NumericVector calibrate(Rcpp::NumericVector ages,
   // Interpolation grid
   IntegerVector tmprange = Rcpp::seq(start_date, end_date);
   NumericVector agegrid = as<NumericVector>(tmprange);
-  int ngrid = agegrid.length();
+  //int ngrid = agegrid.length();
+  
   NumericVector mu = cpplinterp(calbp, c14bp, agegrid, 99999, false);
   NumericVector tau2 = cpplinterp(calbp, tau1, agegrid, 99999, false);
   tau2 = pow(tau2, 2);
   
   // Convert dates
-  NumericVector tau = pow(error, 2.0) + tau2;
+  NumericVector tau = pow(error[0], 2.0) + tau2;
   tau = pow(tau, 0.5);
-  double x1 = ages[0];
-  double x2 = mu[0];
-  double x3 = tau[0];
   //double dens = dnorm(x1, mean = x2, sd = x3);
-  NumericVector dens = mydnorm(agegrid, mu, tau);
+  double eps = 1e-5;
+  //NumericVector dens = cal_dnorm(agegrid, mu, tau, eps);
+  NumericVector dens = cal_dnorm(ages[0], mu, tau, eps);
   // loop over dates
   // for(unsigned int j = 0; j < ngrid; j++) {
   // }
