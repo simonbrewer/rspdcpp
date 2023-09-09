@@ -109,10 +109,12 @@ NumericVector calibrate(Rcpp::DataFrame calcurve,
   IntegerVector tmprange = Rcpp::seq(start_date, end_date);
   NumericVector agerange = as<NumericVector>(tmprange);
   NumericVector mu = cpplinterp(calbp, c14bp, agerange, 99999, false);
+  NumericVector tau2 = cpplinterp(calbp, tau1, agerange, 99999, false);
+  tau2 = tau2 * tau2;
   // Rcpp::NumericVector mu = Rcpp::clone(agerange);
   // for(int i=0;i<agerange.size();i++){
   //   mu[i]=cpplinterp_(calbp,c14bp,agerange[i]);
   // }
-  return mu;
+  return tau2;
 }
 
