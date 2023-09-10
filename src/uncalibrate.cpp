@@ -153,15 +153,16 @@ List uncalibrate(Rcpp::NumericVector agegrid,
   raw = raw/sum(raw);
   raw[raw < 1e-5] = 0;
   dens[base > 0] = raw[base > 0] / base[base > 0];
+  dens = dens / sum(dens);
   // for(unsigned int i = 0; i < k.length(); i++) {
   //   
   // }
   // Output
   Rcpp::List output =
-    Rcpp::List::create(Rcpp::Named("cra") = k,
-                       Rcpp::Named("raw") = raw,
-                       Rcpp::Named("base") = base,
-                       Rcpp::Named("prdens") = dens);
+    Rcpp::List::create(Rcpp::Named("cra") = k[dens > 0],
+                       Rcpp::Named("raw") = raw[dens > 0],
+                       Rcpp::Named("base") = base[dens > 0],
+                       Rcpp::Named("prdens") = dens[dens > 0]);
   
   return output;
 }
