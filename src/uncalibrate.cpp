@@ -97,4 +97,64 @@ Rcpp::NumericVector cpplinterp(Rcpp::NumericVector x,
   return yout;
 }
 
+// [[Rcpp::export]]
+List uncalibrate(Rcpp::NumericVector agegrid, 
+                 Rcpp::NumericVector prdens, 
+                 Rcpp::DataFrame calcurve, 
+                 int start_date,
+                 int end_date,
+                 const bool normalize=false){
+  
+  // Checks
+  if(end_date <= start_date) { 
+    Rcpp::stop("end_date should be larger than start_date");
+  }
+  if(agegrid.length() != prdens.length()) { 
+    Rcpp::stop("Number of dates does not equal number of densities");
+  }
+  
+  // This is the threshold for inclusion  
+  double eps = 0;
+  // Number of dates passed
+  int n = agegrid.length();
+  // Output list
+  Rcpp::List output (n);
+  
+  // Step 1: get yearly conversion series
+  Rcpp::NumericVector calbp = calcurve["CALBP"];
+  Rcpp::NumericVector c14bp = calcurve["C14BP"];
+  Rcpp::NumericVector error = calcurve["Error"];
+  
+  // Step 2: Make interpolation grid
+
+  // Step 3: Interpolate Cal and C14 references
+  NumericVector c14grid = cpplinterp(calbp, c14bp, agegrid, 99999, false);
+  NumericVector c14err = cpplinterp(calbp, error, agegrid, 99999, false);
+  
+  NumericVector rCRA (c14grid.length());
+  for(unsigned int i = 0; i < n; i++) {
+    rCRA[i] = round(R::rnorm(c14grid[i], c14err[i]));
+  }
+
+  Rcpp::NumericVector h = prdens/sum(prdens);
+  // mu = mycras$ccCRA; THIS IS C14GRID
+  //  s = mycras$ccError: THIS IS C14ERR
+  Rcpp::IntegerVector k = Rcpp::seq(start_date, end_date);
+  Rcpp::NumericVector base (k.length());
+  Rcpp::NumericVector res (k.length());
+  Rcpp::NumericVector tmp (c14grid.length());
+  for(unsigned int i = 0; i < k.length(); i++) {
+    tmp = cal_dnorm(k[i], c14grid, c14err, eps);
+    base[i] = sum(tmp);
+    res[i] = sum(tmp * h);
+  }
+  output[0] = c14grid;
+  output[1] = c14err;
+  output[2] = rCRA;
+  output[3] = k;
+  output[4] = res;
+  output[5] = base;
+  return output;
+}
+
 
