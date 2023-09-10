@@ -117,16 +117,14 @@ List uncalibrate(Rcpp::NumericVector agegrid,
   double eps = 0;
   // Number of dates passed
   int n = agegrid.length();
-  // Output list
-  Rcpp::List output (n);
-  
+
   // Step 1: get yearly conversion series
   Rcpp::NumericVector calbp = calcurve["CALBP"];
   Rcpp::NumericVector c14bp = calcurve["C14BP"];
   Rcpp::NumericVector error = calcurve["Error"];
   
   // Step 2: Make interpolation grid
-
+  
   // Step 3: Interpolate Cal and C14 references
   NumericVector c14grid = cpplinterp(calbp, c14bp, agegrid, 99999, false);
   NumericVector c14err = cpplinterp(calbp, error, agegrid, 99999, false);
@@ -135,25 +133,36 @@ List uncalibrate(Rcpp::NumericVector agegrid,
   for(unsigned int i = 0; i < n; i++) {
     rCRA[i] = round(R::rnorm(c14grid[i], c14err[i]));
   }
-
+  
   Rcpp::NumericVector h = prdens/sum(prdens);
   // mu = mycras$ccCRA; THIS IS C14GRID
   //  s = mycras$ccError: THIS IS C14ERR
   Rcpp::IntegerVector k = Rcpp::seq(start_date, end_date);
   Rcpp::NumericVector base (k.length());
-  Rcpp::NumericVector res (k.length());
+  Rcpp::NumericVector raw (k.length());
+  Rcpp::NumericVector dens (k.length());
   Rcpp::NumericVector tmp (c14grid.length());
+  
   for(unsigned int i = 0; i < k.length(); i++) {
     tmp = cal_dnorm(k[i], c14grid, c14err, eps);
     base[i] = sum(tmp);
-    res[i] = sum(tmp * h);
+    raw[i] = sum(tmp * h);
   }
-  output[0] = c14grid;
-  output[1] = c14err;
-  output[2] = rCRA;
-  output[3] = k;
-  output[4] = res;
-  output[5] = base;
+  
+  // Normalizing (i think)
+  raw = raw/sum(raw);
+  raw[raw < 1e-5] = 0;
+  dens[base > 0] = raw[base > 0] / base[base > 0];
+  // for(unsigned int i = 0; i < k.length(); i++) {
+  //   
+  // }
+  // Output
+  Rcpp::List output =
+    Rcpp::List::create(Rcpp::Named("cra") = k,
+                       Rcpp::Named("raw") = raw,
+                       Rcpp::Named("base") = base,
+                       Rcpp::Named("prdens") = dens);
+  
   return output;
 }
 
