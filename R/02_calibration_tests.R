@@ -5,7 +5,7 @@ sourceCpp("./src/calibrate.cpp")
 load("data/dates.RData")
 system.time(dates_rcarbon <- 
               rcarbon::calibrate(uncal.samples, errors, calCurves = 'intcal20', 
-                                 ids = ids, normalised = TRUE, verbose = FALSE))
+                                 ids = ids, normalised = TRUE, verbose = FALSE, timeRange = c(10000, 0)))
 
 ## RCPP - need to load CalCurve
 cc <- read.table("./data/intcal20.14c", header = FALSE, sep = ',')[, 1:3]
