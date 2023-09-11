@@ -25,22 +25,6 @@ uncalibrate <- function(agegrid, prdens, calcurve, start_date, end_date, normali
     .Call(`_rspdcpp_uncalibrate`, agegrid, prdens, calcurve, start_date, end_date, normalize)
 }
 
-make_mat <- function(input_list) {
-    .Call(`_rspdcpp_make_mat`, input_list)
-}
-
-print_list <- function(input_list) {
-    .Call(`_rspdcpp_print_list`, input_list)
-}
-
-make_mat_order <- function(input_val, input_pos, start_date, end_date) {
-    .Call(`_rspdcpp_make_mat_order`, input_val, input_pos, start_date, end_date)
-}
-
-make_spd <- function(input_val, input_pos, start_date, end_date) {
-    .Call(`_rspdcpp_make_spd`, input_val, input_pos, start_date, end_date)
-}
-
 make_spd <- function(input_val, start_date, end_date) {
     .Call(`_rspdcpp_make_spd`, input_val, start_date, end_date)
 }
