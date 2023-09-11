@@ -174,3 +174,73 @@ List calibrate(Rcpp::NumericVector ages,
   return output;
 }
 
+// [[Rcpp::export]]
+List uncalibrate(Rcpp::NumericVector agegrid, 
+                 Rcpp::NumericVector prdens, 
+                 Rcpp::DataFrame calcurve, 
+                 int start_date,
+                 int end_date,
+                 const bool normalize=false){
+  
+  // Checks
+  if(end_date <= start_date) { 
+    Rcpp::stop("end_date should be larger than start_date");
+  }
+  if(agegrid.length() != prdens.length()) { 
+    Rcpp::stop("Number of dates does not equal number of densities");
+  }
+  
+  // This is the threshold for inclusion  
+  double eps = 0;
+  // Number of dates passed
+  int n = agegrid.length();
+  
+  // Step 1: get yearly conversion series
+  Rcpp::NumericVector calbp = calcurve["CALBP"];
+  Rcpp::NumericVector c14bp = calcurve["C14BP"];
+  Rcpp::NumericVector error = calcurve["Error"];
+  
+  // Step 2: Make interpolation grid
+  
+  // Step 3: Interpolate Cal and C14 references
+  NumericVector c14grid = cpplinterp(calbp, c14bp, agegrid, 99999, false);
+  NumericVector c14err = cpplinterp(calbp, error, agegrid, 99999, false);
+  
+  NumericVector rCRA (c14grid.length());
+  for(unsigned int i = 0; i < n; i++) {
+    rCRA[i] = round(R::rnorm(c14grid[i], c14err[i]));
+  }
+  
+  Rcpp::NumericVector h = prdens/sum(prdens);
+  // mu = mycras$ccCRA; THIS IS C14GRID
+  //  s = mycras$ccError: THIS IS C14ERR
+  Rcpp::IntegerVector k = Rcpp::seq(start_date, end_date);
+  Rcpp::NumericVector base (k.length());
+  Rcpp::NumericVector raw (k.length());
+  Rcpp::NumericVector dens (k.length());
+  Rcpp::NumericVector tmp (c14grid.length());
+  
+  for(unsigned int i = 0; i < k.length(); i++) {
+    tmp = cal_dnorm(k[i], c14grid, c14err, eps);
+    base[i] = sum(tmp);
+    raw[i] = sum(tmp * h);
+  }
+  
+  // Normalizing (i think)
+  raw = raw/sum(raw);
+  raw[raw < 1e-5] = 0;
+  dens[base > 0] = raw[base > 0] / base[base > 0];
+  dens = dens / sum(dens);
+  // for(unsigned int i = 0; i < k.length(); i++) {
+  //   
+  // }
+  // Output
+  Rcpp::List output =
+    Rcpp::List::create(Rcpp::Named("cra") = k[dens > 0],
+                       Rcpp::Named("raw") = raw[dens > 0],
+                                               Rcpp::Named("base") = base[dens > 0],
+                                                                         Rcpp::Named("prdens") = dens[dens > 0]);
+  
+  return output;
+}
+
