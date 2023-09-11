@@ -99,56 +99,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// make_mat
-Rcpp::NumericMatrix make_mat(Rcpp::List input_list);
-RcppExport SEXP _rspdcpp_make_mat(SEXP input_listSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_list(input_listSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_mat(input_list));
-    return rcpp_result_gen;
-END_RCPP
-}
-// print_list
-int print_list(Rcpp::List input_list);
-RcppExport SEXP _rspdcpp_print_list(SEXP input_listSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_list(input_listSEXP);
-    rcpp_result_gen = Rcpp::wrap(print_list(input_list));
-    return rcpp_result_gen;
-END_RCPP
-}
-// make_mat_order
-Rcpp::NumericMatrix make_mat_order(Rcpp::List input_val, Rcpp::List input_pos, int start_date, int end_date);
-RcppExport SEXP _rspdcpp_make_mat_order(SEXP input_valSEXP, SEXP input_posSEXP, SEXP start_dateSEXP, SEXP end_dateSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_val(input_valSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_pos(input_posSEXP);
-    Rcpp::traits::input_parameter< int >::type start_date(start_dateSEXP);
-    Rcpp::traits::input_parameter< int >::type end_date(end_dateSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_mat_order(input_val, input_pos, start_date, end_date));
-    return rcpp_result_gen;
-END_RCPP
-}
-// make_spd
-Rcpp::NumericVector make_spd(Rcpp::List input_val, Rcpp::List input_pos, int start_date, int end_date);
-RcppExport SEXP _rspdcpp_make_spd(SEXP input_valSEXP, SEXP input_posSEXP, SEXP start_dateSEXP, SEXP end_dateSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_val(input_valSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type input_pos(input_posSEXP);
-    Rcpp::traits::input_parameter< int >::type start_date(start_dateSEXP);
-    Rcpp::traits::input_parameter< int >::type end_date(end_dateSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_spd(input_val, input_pos, start_date, end_date));
-    return rcpp_result_gen;
-END_RCPP
-}
 // make_spd
 Rcpp::List make_spd(Rcpp::List input_val, int start_date, int end_date);
 RcppExport SEXP _rspdcpp_make_spd(SEXP input_valSEXP, SEXP start_dateSEXP, SEXP end_dateSEXP) {
@@ -170,10 +120,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rspdcpp_approx_test", (DL_FUNC) &_rspdcpp_approx_test, 3},
     {"_rspdcpp_calibrate", (DL_FUNC) &_rspdcpp_calibrate, 6},
     {"_rspdcpp_uncalibrate", (DL_FUNC) &_rspdcpp_uncalibrate, 6},
-    {"_rspdcpp_make_mat", (DL_FUNC) &_rspdcpp_make_mat, 1},
-    {"_rspdcpp_print_list", (DL_FUNC) &_rspdcpp_print_list, 1},
-    {"_rspdcpp_make_mat_order", (DL_FUNC) &_rspdcpp_make_mat_order, 4},
-    {"_rspdcpp_make_spd", (DL_FUNC) &_rspdcpp_make_spd, 4},
     {"_rspdcpp_make_spd", (DL_FUNC) &_rspdcpp_make_spd, 3},
     {NULL, NULL, 0}
 };
