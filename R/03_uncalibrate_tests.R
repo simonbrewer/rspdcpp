@@ -1,5 +1,5 @@
 ## Compare uncalibrate methods
-
+library(Rcpp)
 load("./data/model.RData")
 
 ## RCarbon
@@ -10,7 +10,7 @@ system.time(
 )
 
 ## RCPP
-sourceCpp("./src/uncalibrate.cpp")
+sourceCpp("./src/calibrate.cpp")
 cc <- read.table("./data/intcal20.14c", header = FALSE, sep = ',')[, 1:3]
 colnames(cc) <- c("CALBP","C14BP","Error")
 cc <- cc[order(cc$CALBP), ]
