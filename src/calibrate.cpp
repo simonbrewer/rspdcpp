@@ -167,8 +167,8 @@ List calibrate(Rcpp::NumericVector ages,
     }
     
     Rcpp::DataFrame tmp =
-      Rcpp::DataFrame::create(Rcpp::Named("calbp") = agegrid[dens > eps],
-                              Rcpp::Named("prdens") = dens[dens > eps]);
+      Rcpp::DataFrame::create(Rcpp::Named("calBP") = agegrid[dens > eps],
+                              Rcpp::Named("PrDens") = dens[dens > eps]);
     output[i] = tmp;
   }
   return output;
